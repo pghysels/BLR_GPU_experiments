@@ -5,10 +5,10 @@
 # enter 'cuda' or 'hip' respectively
 BACKEND      = dpcpp
 
-CC           = dpcpp
-CXX          = dpcpp
-FORT         = ifort
-DEVCC       = dpcpp
+CC           = icx
+CXX          = icpx
+FORT         = ifx
+DEVCC       = icpx
 
 # and utilities
 ARCH        ?= ar
@@ -24,12 +24,12 @@ FPIC        = -fPIC
 # NOTE: For some reason, using `-fopenmp` is not enough to add linker flags to
 #   the compiler, so we need to add -L here too
 #FOPENMP     =  -fopenmp-targets=amdgcn-amd-amdhsa
-FOPENMP =  -fopenmp
+FOPENMP =  -qopenmp
 #DEVOPENMP   = -Xopenmp-target=amdgcn-amd-amdhsa -march=gfx906
 
 # now, generate our flags
 CFLAGS      = -O3 $(FPIC) $(FOPENMP) -DNDEBUG -DADD_ -Wall -std=c99 -DENABLE_TIMER
-CXXFLAGS    = -O3 $(FPIC) $(FOPENMP) -DNDEBUG -DADD_ -Wall -std=c++17 -DENABLE_TIMER
+CXXFLAGS    = -O3 $(FPIC) $(FOPENMP) -DNDEBUG -DADD_ -Wall -std=c++17 -DENABLE_TIMER -fsycl
 FFLAGS      = -O3 $(FPIC) -DNDEBUG -DADD_ -Wall -Wno-unused-dummy-argument
 F90FLAGS    = -O3 $(FPIC) -DNDEBUG -DADD_ #-Wall -Wno-unused-dummy-argument -x f95-cpp-input
 LDFLAGS     =     $(FPIC) -fsycl-device-lib=all $(FOPENMP)

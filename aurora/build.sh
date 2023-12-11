@@ -10,29 +10,29 @@ export PARMETIS_DIR=${PARMETIS_ROOT}
 export STRUMPACK_DIR=`pwd`/STRUMPACK/install
 export PETSC_DIR=`pwd`/petsc
 
-# git clone https://pieter_ghysels@bitbucket.org/icl/magma.git
-# git clone --recursive https://github.com/icl-utk-edu/slate.git
-# git clone git@github.com:ecrc/kblas-gpu-dev.git
-# git clone git@github.com:pghysels/STRUMPACK.git
-# git clone -b release https://gitlab.com/petsc/petsc.git petsc
+git clone https://pieter_ghysels@bitbucket.org/icl/magma.git
+git clone --recursive https://github.com/icl-utk-edu/slate.git
+git clone git@github.com:ecrc/kblas-gpu-dev.git
+git clone git@github.com:pghysels/STRUMPACK.git
+git clone -b release https://gitlab.com/petsc/petsc.git petsc
 
 
-# cd slate
-# rm -rf build
-# rm -rf install
-# mkdir build
-# mkdir install
-# cd build
-# cmake .. \
-#       -DCMAKE_BUILD_TYPE=Release \
-#       -DCMAKE_INSTALL_PREFIX=../install \
-#       -DCMAKE_CXX_COMPILER=icpx \
-#       -Dgpu_backend=sycl \
-#       -Dblas=mkl \
-#       -Dbuild_tests=OFF
-# make -j16
-# make install
-# cd ../../
+cd slate
+rm -rf build
+rm -rf install
+mkdir build
+mkdir install
+cd build
+cmake .. \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=../install \
+      -DCMAKE_CXX_COMPILER=icpx \
+      -Dgpu_backend=sycl \
+      -Dblas=mkl \
+      -Dbuild_tests=OFF
+make -j16
+make install
+cd ../../
 
 
 cd magma
