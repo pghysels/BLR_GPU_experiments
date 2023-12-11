@@ -133,7 +133,7 @@ cmake .. \
       -DTPL_KBLAS_INCLUDE_DIR="${KBLAS_DIR}/include" \
       -DTPL_KBLAS_LIBRARIES="${KBLAS_DIR}/lib/libkblas-gpu.a" \
       -DTPL_METIS_INCLUDE_DIR="${METIS_DIR}/include" \
-      -DTPL_METIS_LIBRARIES="${METIS_DIR}/lib/libmetis.a;${PARMETIS_DIR}/lib/libGKlib.a"
+      -DTPL_METIS_LIBRARIES="${METIS_DIR}/lib/libmetis.a;${PARMETIS_DIR}/lib/libGKlib.a" \
       -DTPL_ParMETIS_INCLUDE_DIR="${PARMETIS_DIR}/include" \
       -DTPL_ParMETIS_LIBRARIES="${METIS_DIR}/lib/libparmetis.a;${PARMETIS_DIR}/lib/libGKlib.a"
 make -j
