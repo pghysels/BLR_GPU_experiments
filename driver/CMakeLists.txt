@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.21)
 project(BLR_GPU VERSION 1.0.0 LANGUAGES CXX C Fortran)
 
+add_executable(Helmholtz Helmholtz.cpp genmatrix3D_core.f)
+
+find_package(STRUMPACK)
+target_link_libraries(Helmholtz PUBLIC STRUMPACK::strumpack)
+
+
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # set root of location to find PETSc's pkg-config
@@ -20,10 +26,8 @@ set(ENV{PKG_CONFIG_PATH} ${PETSC}/lib/pkgconfig)
 #   enable_language(Fortran)
 # endif (FORTRAN_COMPILER)
 
-
-add_executable(Helmholtz Helmholtz.cpp genmatrix3D_core.f)
-
-
 find_package(PkgConfig REQUIRED)
+list(APPEND PKG_CONFIG_EXECUTABLE "--static")
 pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc)
-target_link_libraries(Helmholtz PkgConfig::PETSC)
+target_link_libraries(Helmholtz PUBLIC PkgConfig::PETSC)
+

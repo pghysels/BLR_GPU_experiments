@@ -1,7 +1,19 @@
 #!/bin/bash
 
+rm -rf code
 mkdir code
 cd code
+
+export MAGMA_DIR=`pwd`/magma-2.7.2/install
+export SLATE_DIR=`pwd`/slate/install
+export METIS_DIR=`pwd`/ParMETIS_install
+export PARMETIS_DIR=`pwd`/ParMETIS_install
+export STRUMPACK_DIR=`pwd`/STRUMPACK/install
+export PETSC_DIR=`pwd`/petsc
+export PETSC_ARCH=arch-linux-c-opt
+export KBLAS_DIR=`pwd`/kblas-gpu-dev
+export CUDAToolkit_ROOT=${CUDATOOLKIT_HOME}
+
 
 wget https://icl.utk.edu/projectsfiles/magma/downloads/magma-2.7.2.tar.gz
 tar -xzf magma-2.7.2.tar.gz
@@ -10,39 +22,16 @@ git clone --recursive https://github.com/icl-utk-edu/slate.git
 git clone git@github.com:ecrc/kblas-gpu-dev.git
 git clone git@github.com:pghysels/STRUMPACK.git
 git clone -b release https://gitlab.com/petsc/petsc.git petsc
-
-# wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-5.1.0.tar.gz
-# wget https://bitbucket.org/petsc/pkg-parmetis/get/v4.0.3.tar.gz
-# tar -xzf metis-5.1.0.tar.gz
-# tar -xvzf v4.0.3.tar.gz
 git clone https://github.com/KarypisLab/ParMETIS
 git clone https://github.com/KarypisLab/GKlib.git
 git clone https://github.com/KarypisLab/METIS.git
 
 
-export MAGMA_DIR=`pwd`/magma-2.7.2/install
-export SLATE_DIR=`pwd`/slate/install
-# export METIS_DIR=`pwd`/metis-5.1.0/install
-export METIS_DIR=`pwd`/ParMETIS_install
-export PARMETIS_DIR=`pwd`/ParMETIS_install
-export STRUMPACK_DIR=`pwd`/STRUMPACK/install
-export PETSC_DIR=`pwd`/petsc
-
-export KBLAS_DIR=`pwd`/kblas-gpu-dev
 cd kblas-gpu-dev
 cp ../../make.inc .
 git checkout wajih_syncwarp
 cd ../
 
-export CUDAToolkit_ROOT=${CUDATOOLKIT_HOME}
-
-
-# cd metis-5.1.0
-# mkdir install
-# make config cc=cc prefix=`pwd`/install
-# make -j
-# make install
-# cd ../
 
 mkdir ParMETIS_install
 cd GKlib
@@ -148,6 +137,7 @@ cd petsc
     --CXXOPTFLAGS="-O3 -march=native" \
     --COPTFLAGS="-O3 -march=native" \
     --CUDAOPTFLAGS="-O3" \
+    --with-scalar-type=complex \
     --with-shared-libraries=0 \
     --with-cuda=1 \
     --with-cuda-arch=80 \
@@ -170,3 +160,17 @@ cd petsc
     --with-strumpack-include=[${STRUMPACK_DIR}/include,${KBLAS_DIR}/include] \
     --with-strumpack-lib=[${STRUMPACK_DIR}/lib64/libstrumpack.a,${KBLAS_DIR}/lib/libkblas-gpu.a]
 make -j
+cd ../../../
+
+
+cd driver
+rm -rf build
+mkdir build
+cd build
+cmake ../ \
+      -DCMAKE_CXX_COMPILER=CC \
+      -DCMAKE_C_COMPILER=cc \
+      -DCMAKE_Fortran_COMPILER=ftn \
+      -DCMAKE_BUILD_TYPE=Release
+make
+cd ../../
