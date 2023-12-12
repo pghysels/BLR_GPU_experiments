@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm -rf code
+# rm -rf code
 mkdir code
 cd code
 
@@ -30,6 +30,7 @@ git clone https://github.com/KarypisLab/METIS.git
 cd kblas-gpu-dev
 cp ../../make.inc .
 git checkout wajih_syncwarp
+make -j
 cd ../
 
 
@@ -91,11 +92,6 @@ make install
 cd ../../
 
 
-cd kblas-gpu-dev
-make -j
-cd ../
-
-
 cd STRUMPACK
 rm -rf build
 rm -rf install
@@ -138,7 +134,7 @@ cd petsc
     --COPTFLAGS="-O3 -march=native" \
     --CUDAOPTFLAGS="-O3" \
     --with-scalar-type=complex \
-    --with-shared-libraries=0 \
+    --with-shared-libraries=1 \
     --with-cuda=1 \
     --with-cuda-arch=80 \
     --with-debugging=0 \
@@ -160,8 +156,9 @@ cd petsc
     --with-strumpack-include=[${STRUMPACK_DIR}/include,${KBLAS_DIR}/include] \
     --with-strumpack-lib=[${STRUMPACK_DIR}/lib64/libstrumpack.a,${KBLAS_DIR}/lib/libkblas-gpu.a]
 make -j
-cd ../../../
+cd ../
 
+cd ../../
 
 cd driver
 rm -rf build

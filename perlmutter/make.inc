@@ -68,7 +68,7 @@ ifdef _DEBUG_
   NVOPTS += -G -g -lineinfo
 else
   COPTS += -O3 -fPIC
-  NVOPTS += -O3
+  NVOPTS += -O3 -Xcompiler=-fPIC
 endif
 
 #-----------------------------------------
