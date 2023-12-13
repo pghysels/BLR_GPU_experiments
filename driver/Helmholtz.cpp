@@ -26,15 +26,12 @@ extern "C" {
 
 
 int main(int argc, char* argv[]) {
-  int thread_level, rank, P;
-  MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &thread_level);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &P);
-  if (thread_level != MPI_THREAD_MULTIPLE && rank == 0)
-    std::cout << "MPI implementation does not support MPI_THREAD_MULTIPLE"
-              << std::endl;
-
+  PETSC_MPI_THREAD_REQUIRED = MPI_THREAD_MULTIPLE;
+  PetscFunctionBeginUser;
   PetscCall(PetscInitialize(&argc, &argv, (char *)0, help));
+  int rank, P;
+  PetscCallMPI(MPI_Comm_rank(PETSC_COMM_WORLD, &rank));
+  PetscCallMPI(MPI_Comm_size(PETSC_COMM_WORLD, &P));
 
   PetscInt n_in = 20;
   PetscCall(PetscOptionsGetInt(NULL, NULL, "-n", &n_in, NULL));
@@ -73,7 +70,7 @@ int main(int argc, char* argv[]) {
   // PetscCall(MatMPIAIJSetPreallocation(A, 5, NULL, 5, NULL));
 
   for (std::int64_t i=0; i<nnz; i++) {
-    PetscInt r = rowind[i], c = colind[i];
+    PetscInt r = rowind[i] - 1, c = colind[i] - 1;
     PetscComplex v = val[i];
     PetscCall(MatSetValues(A, 1, &r, 1, &c, &v, INSERT_VALUES));
   }

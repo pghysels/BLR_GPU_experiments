@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# rm -rf code
+rm -rf code
 mkdir code
 cd code
 
@@ -25,14 +25,6 @@ git clone -b release https://gitlab.com/petsc/petsc.git petsc
 git clone https://github.com/KarypisLab/ParMETIS
 git clone https://github.com/KarypisLab/GKlib.git
 git clone https://github.com/KarypisLab/METIS.git
-
-
-cd kblas-gpu-dev
-cp ../../make.inc .
-git checkout wajih_syncwarp
-make -j
-cd ../
-
 
 mkdir ParMETIS_install
 cd GKlib
@@ -90,6 +82,13 @@ cmake ../ \
 make -j16
 make install
 cd ../../
+
+
+cd kblas-gpu-dev
+cp ../../make.inc .
+git checkout wajih_syncwarp
+make -j
+cd ../
 
 
 cd STRUMPACK
