@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -A m2957_g
 #SBATCH -C gpu
-#SBATCH -G 16
+#SBATCH -G 0
 #SBATCH -N 4
 #SBATCH -q debug
 #SBATCH -t 0:30:00
@@ -20,7 +20,7 @@ for n in 50 75 100 125 150 175 200; do
     for GPU in 0; do
 	for comp in NONE BLR; do
 	    # applications may perform better with --gpu-bind=none instead of --gpu-bind=single:1
-	    srun -n 16 -c 32 --cpu_bind=cores -G 16 --gpu-bind=single:1 \
+	    srun -n 256 -c 2 --cpu_bind=cores -G 0 --gpu-bind=single:1 \
 		 ../../driver/build/Helmholtz -n $n \
 		 -pc_type lu \
 		 -pc_factor_mat_solver_type strumpack \
@@ -30,7 +30,7 @@ for n in 50 75 100 125 150 175 200; do
 		 -ksp_monitor \
 		 -log_view \
 		 -use_gpu_aware_mpi 0 \
-		 > ${out}/n_${n}_STRUMPACK_GPU${GPU}_${comp}.log
+		 > ${out}/n_${n}_STRUMPACK_flat_GPU${GPU}_${comp}.log
 	done
     done
 done
