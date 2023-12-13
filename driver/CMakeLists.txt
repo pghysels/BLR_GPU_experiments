@@ -27,7 +27,7 @@ set(ENV{PKG_CONFIG_PATH} ${PETSC}/lib/pkgconfig)
 # endif (FORTRAN_COMPILER)
 
 find_package(PkgConfig REQUIRED)
-list(APPEND PKG_CONFIG_EXECUTABLE "--static")
+# list(APPEND PKG_CONFIG_EXECUTABLE "--static")
 pkg_search_module(PETSC REQUIRED IMPORTED_TARGET PETSc)
 target_link_libraries(Helmholtz PUBLIC PkgConfig::PETSC)
 

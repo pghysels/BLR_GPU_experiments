@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 
   PetscInt n_in = 20;
   PetscCall(PetscOptionsGetInt(NULL, NULL, "-n", &n_in, NULL));
-  std::int64_t nx = n_in;
+  std::int64_t nx = n_in, rank64 = rank;
 
   char datafile[] = "void";
   std::int64_t fromfile = 0, npml = 8, nnz, n;
@@ -52,16 +52,17 @@ int main(int argc, char* argv[]) {
   }
   n_local = high_f - low_f + 1;
   FC_GLOBAL(genmatrix3d_anal,GENMATRIX3D_ANAL)
-    (&nx, &nx, &nx, &n_local, &npml, &n, &nnz, &fromfile, datafile, &rank);
+    (&nx, &nx, &nx, &n_local, &npml, &n, &nnz, &fromfile,
+     datafile, &rank64);
 
   std::vector<std::int64_t> rowind(nnz), colind(nnz);
   std::vector<std::complex<float>> val(nnz);
   FC_GLOBAL(genmatrix3d,GENMATRIX3D)
     (rowind.data(), colind.data(), val.data(), &nx, &nx, &nx,
-     &low_f, &high_f, &npml, &nnz, &fromfile, datafile, &rank);
+     &low_f, &high_f, &npml, &nnz, &fromfile, datafile, &rank64);
 
   Mat A;
-  PetscCall(MatCreate(PETSC_COMM_SELF, &A));
+  PetscCall(MatCreate(PETSC_COMM_WORLD, &A));
   PetscCall(MatSetSizes(A, PETSC_DECIDE, PETSC_DECIDE, n, n));
   PetscCall(MatSetFromOptions(A));
   PetscCall(MatSetUp(A));
@@ -78,7 +79,7 @@ int main(int argc, char* argv[]) {
   PetscCall(MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY));
 
   Vec x, b, u;
-  PetscCall(VecCreate(PETSC_COMM_SELF, &x));
+  PetscCall(VecCreate(PETSC_COMM_WORLD, &x));
   PetscCall(PetscObjectSetName((PetscObject)x, "Solution"));
   PetscCall(VecSetSizes(x, PETSC_DECIDE, n));
   PetscCall(VecSetFromOptions(x));
@@ -89,7 +90,7 @@ int main(int argc, char* argv[]) {
   PetscCall(MatMult(A, u, b));
 
   KSP ksp;
-  PetscCall(KSPCreate(PETSC_COMM_SELF, &ksp));
+  PetscCall(KSPCreate(PETSC_COMM_WORLD, &ksp));
   PetscCall(KSPSetOperators(ksp, A, A));
   PetscCall(KSPSetFromOptions(ksp));
   PetscCall(KSPSolve(ksp, b, x));
@@ -99,7 +100,7 @@ int main(int argc, char* argv[]) {
   PetscCall(VecAXPY(x, -1.0, u));
   PetscCall(VecNorm(x, NORM_2, &norm));
   PetscCall(KSPGetIterationNumber(ksp, &its));
-  PetscCall(PetscPrintf(PETSC_COMM_SELF, "Norm of error %g, Iterations %" PetscInt_FMT "\n", (double)norm, its));
+  PetscCall(PetscPrintf(PETSC_COMM_WORLD, "Norm of error %g, Iterations %" PetscInt_FMT "\n", (double)norm, its));
 
   
   PetscCall(KSPDestroy(&ksp));
