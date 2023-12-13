@@ -8,7 +8,7 @@
 
 export MPICH_GPU_SUPPORT_ENABLED=0
 
-export OMP_NUM_THREADS=16
+export OMP_NUM_THREADS=1
 export OMP_PLACES=threads
 export OMP_PROC_BIND=spread   # for bandwidth
 # export OMP_PROC_BIND=close  # for cache locality
