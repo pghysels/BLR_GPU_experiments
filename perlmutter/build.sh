@@ -148,7 +148,8 @@ cd petsc
     --download-superlu_dist=yes \
     --download-superlu=yes \
     --download-mumps=yes \
-    --download-pastix=no \
+    --download-hwloc \
+    --download-pastix=yes \
     --download-suitesparse=yes \
     --with-scalapack=1 \
     --with-strumpack=1 \
