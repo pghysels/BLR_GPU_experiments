@@ -67,7 +67,6 @@ int main(int argc, char* argv[]) {
   PetscCall(MatSetFromOptions(A));
   PetscCall(MatSetUp(A));
 
-  // TODO
   // PetscCall(MatMPIAIJSetPreallocation(A, 5, NULL, 5, NULL));
 
   for (std::int64_t i=0; i<nnz; i++) {
@@ -89,21 +88,25 @@ int main(int argc, char* argv[]) {
   PetscCall(VecSet(u, 1.0));
   PetscCall(MatMult(A, u, b));
 
-  KSP ksp;
-  PetscCall(KSPCreate(PETSC_COMM_WORLD, &ksp));
-  PetscCall(KSPSetOperators(ksp, A, A));
-  PetscCall(KSPSetFromOptions(ksp));
-  PetscCall(KSPSolve(ksp, b, x));
+  for (int i=0; i<2; i++) {
+    if (i == 1) PetscLogDefaultBegin();
+    KSP ksp;
+    PetscCall(KSPCreate(PETSC_COMM_WORLD, &ksp));
+    PetscCall(KSPSetOperators(ksp, A, A));
+    PetscCall(KSPSetFromOptions(ksp));
+    PetscCall(KSPSolve(ksp, b, x));
 
-  PetscReal norm;
-  PetscInt its;
-  PetscCall(VecAXPY(x, -1.0, u));
-  PetscCall(VecNorm(x, NORM_2, &norm));
-  PetscCall(KSPGetIterationNumber(ksp, &its));
-  PetscCall(PetscPrintf(PETSC_COMM_WORLD, "Norm of error %g, Iterations %" PetscInt_FMT "\n", (double)norm, its));
+    PetscReal norm;
+    PetscInt its;
+    PetscCall(VecAXPY(x, -1.0, u));
+    PetscCall(VecNorm(x, NORM_2, &norm));
+    PetscCall(KSPGetIterationNumber(ksp, &its));
+    PetscCall(PetscPrintf(PETSC_COMM_WORLD, "Norm of error %g, Iterations %" PetscInt_FMT "\n", (double)norm, its));
 
+    PetscCall(KSPDestroy(&ksp));
+  }
+  PetscLogView(PETSC_VIEWER_STDOUT_(PETSC_COMM_WORLD));
   
-  PetscCall(KSPDestroy(&ksp));
   PetscCall(VecDestroy(&x));
   PetscCall(VecDestroy(&u));
   PetscCall(VecDestroy(&b));

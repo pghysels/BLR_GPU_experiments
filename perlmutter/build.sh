@@ -51,6 +51,7 @@ cd build
 cmake .. \
       -Dblas=libsci \
       -DCMAKE_CXX_COMPILER=CC \
+      -DCMAKE_CXX_FLAGS=-DSLATE_HAVE_MT_BCAST \
       -DCMAKE_C_COMPILER=cc \
       -DCMAKE_Fortran_COMPILER=ftn \
       -Dgpu_backend=cuda \
