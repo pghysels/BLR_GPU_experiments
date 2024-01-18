@@ -5,6 +5,7 @@ Input parameters include:\n\
 #include <iostream>
 #include <complex>
 #include <algorithm>
+#include <vector>
 
 #include <petscksp.h>
 #include <petscsys.h>
