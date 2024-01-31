@@ -88,6 +88,7 @@ cd ../../
 cd kblas-gpu-dev
 cp ../../make.inc .
 git checkout wajih_syncwarp
+cp ../../kblas_operators.h include
 make -j
 cd ../
 
