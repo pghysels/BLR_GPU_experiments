@@ -89,8 +89,8 @@ int main(int argc, char* argv[]) {
   PetscCall(VecSet(u, 1.0));
   PetscCall(MatMult(A, u, b));
 
-  for (int i=0; i<2; i++) {
-    if (i == 1) PetscLogDefaultBegin();
+  for (int i=0; i<1; i++) {
+    if (i == 0) PetscLogDefaultBegin();
     KSP ksp;
     PetscCall(KSPCreate(PETSC_COMM_WORLD, &ksp));
     PetscCall(KSPSetOperators(ksp, A, A));
