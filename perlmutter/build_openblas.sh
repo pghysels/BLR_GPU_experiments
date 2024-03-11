@@ -1,5 +1,8 @@
 #!/bin/bash
+
 module load cmake
+module unload cray-libsci
+
 rm -rf code
 mkdir code
 cd code
@@ -14,6 +17,8 @@ export PETSC_DIR=`pwd`/petsc
 export PETSC_ARCH=arch-linux-c-opt
 export KBLAS_DIR=`pwd`/kblas-gpu-dev
 export CUDAToolkit_ROOT=${CUDATOOLKIT_HOME}
+export OpenBLAS_DIR=`pwd`/OpenBLAS/install
+export SCALAPACK_DIR=`pwd`/scalapack/install
 
 
 wget https://icl.utk.edu/projectsfiles/magma/downloads/magma-2.7.2.tar.gz
@@ -24,6 +29,33 @@ git clone git@github.com:ecrc/kblas-gpu-dev.git
 git clone git@github.com:pghysels/STRUMPACK.git
 git clone -b release https://gitlab.com/petsc/petsc.git petsc
 git clone https://github.com/xiaoyeli/superlu_dist.git
+# wget https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.26/OpenBLAS-0.3.26.tar.gz
+git clone git@github.com:OpenMathLib/OpenBLAS.git
+git clone git@github.com:Reference-ScaLAPACK/scalapack.git
+
+cd OpenBLAS
+mkdir build
+mkdir install
+cd build
+cmake ../ \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=../install
+make -j16
+make install
+cd ../../
+
+cd scalapack
+mkdir build
+mkdir install
+cd build
+cmake ../ \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=../install \
+      -DBLAS_LIBRARIES=${OpenBLAS_DIR}/lib64/libopenblas.a \
+      -DLAPACK_LIBRARIES=${OpenBLAS_DIR}/lib64/libopenblas.a
+make -j16
+make install
+cd ../../
 
 
 # git clone https://github.com/KarypisLab/ParMETIS
@@ -60,9 +92,6 @@ cp $PWD/parmetis-4.0.3/build/Linux-x86_64/libmetis/libmetis.a $PARMETIS_DIR/lib/
 cp $PWD/parmetis-4.0.3/metis/include/metis.h $PARMETIS_DIR/include/.
 
 
-
-
-
 cd slate
 rm -rf build
 rm -rf install
@@ -70,7 +99,7 @@ mkdir build
 mkdir install
 cd build
 cmake .. \
-      -Dblas=libsci \
+      -Dblas=openblas \
       -DCMAKE_CXX_COMPILER=CC \
       -DCMAKE_CXX_FLAGS=-DSLATE_HAVE_MT_BCAST \
       -DCMAKE_C_COMPILER=cc \
@@ -80,7 +109,8 @@ cmake .. \
       -DBUILD_SHARED_LIBS=ON \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=../install \
-      -DSCALAPACK_LIBRARIES=" " \
+      -DBLAS_LIBRARIES=${OpenBLAS_DIR}/lib64/libopenblas.a \
+      -DSCALAPACK_LIBRARIES=${SCALAPACK_DIR}/lib/libscalapack.a \
       -DCMAKE_CUDA_ARCHITECTURES="80"
 make -j16
 make install
@@ -95,6 +125,8 @@ mkdir install
 cd build
 cmake ../ \
       -DCMAKE_INSTALL_PREFIX=../install \
+      -DBLAS_LIBRARIES=${OpenBLAS_DIR}/lib64/libopenblas.a \
+      -DLAPACK_LIBRARIES=${OpenBLAS_DIR}/lib64/libopenblas.a \
       -DCMAKE_CXX_COMPILER=CC \
       -DCMAKE_C_COMPILER=cc \
       -DCMAKE_Fortran_COMPILER=ftn \
@@ -107,7 +139,7 @@ cd ../../
 
 
 cd kblas-gpu-dev
-cp ../../make.inc .
+cp ../../make.inc_openblas make.inc
 git checkout wajih_syncwarp
 cp ../../kblas_operators.h include
 make -j
@@ -137,6 +169,9 @@ cmake .. \
       -DTPL_ENABLE_SCOTCH=OFF \
       -DTPL_ENABLE_PTSCOTCH=OFF \
       -DTPL_ENABLE_KBLAS=ON \
+      -DTPL_BLAS_LIBRARIES=${OpenBLAS_DIR}/lib64/libopenblas.a \
+      -DTPL_LAPACK_LIBRARIES=${OpenBLAS_DIR}/lib64/libopenblas.a \
+      -DTPL_SCALAPACK_LIBRARIES=${SCALAPACK_DIR}/lib/libscalapack.a \
       -DTPL_KBLAS_INCLUDE_DIR="${KBLAS_DIR}/include" \
       -DTPL_KBLAS_LIBRARIES="${KBLAS_DIR}/lib/libkblas-gpu.a" \
       -DTPL_METIS_INCLUDE_DIR="${METIS_DIR}/include" \
@@ -170,8 +205,8 @@ cmake .. \
   -DCMAKE_INSTALL_PREFIX=. \
   -DCMAKE_INSTALL_LIBDIR=./lib \
   -DCMAKE_BUILD_TYPE=Release \
-  -DTPL_BLAS_LIBRARIES=/opt/cray/pe/libsci/23.12.5/GNU/12.3/x86_64/lib/libsci_gnu_123_mp.a \
-  -DTPL_LAPACK_LIBRARIES=/opt/cray/pe/libsci/23.12.5/GNU/12.3/x86_64/lib/libsci_gnu_123_mp.a \
+  -DTPL_BLAS_LIBRARIES=${OpenBLAS_DIR}/lib64/libopenblas.a \
+  -DTPL_BLAS_LIBRARIES=${OpenBLAS_DIR}/lib64/libopenblas.a \
   -DTPL_PARMETIS_INCLUDE_DIRS="${PARMETIS_DIR}/include;${METIS_DIR}/include" \
   -DTPL_PARMETIS_LIBRARIES="${PARMETIS_DIR}/lib/libparmetis.a;${METIS_DIR}/lib/libmetis.a" \
   -DTPL_ENABLE_COMBBLASLIB=OFF \
@@ -184,6 +219,8 @@ cmake .. \
 
 make pddrive -j16
 make pddrive3d -j16
+make pzdrive -j16
+make pzdrive3d -j16
 make install
 cd ../../
 
@@ -196,6 +233,9 @@ cp ../../../patches/superlu_dist.c ./src/mat/impls/aij/mpi/superlu_dist/.
     --CUDAOPTFLAGS="-O3" \
     --with-scalar-type=complex \
     --with-shared-libraries=1 \
+    --with-blas-lib=[${OpenBLAS_DIR}/lib64/libopenblas.a] \
+    --with-lapack-lib=[${OpenBLAS_DIR}/lib64/libopenblas.a] \
+    --with-scalapack-lib=[${SCALAPACK_DIR}/lib/libscalapack.a] \
     --with-cuda=1 \
     --with-cuda-arch=80 \
     --with-debugging=0 \

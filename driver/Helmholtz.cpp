@@ -5,6 +5,7 @@ Input parameters include:\n\
 #include <iostream>
 #include <complex>
 #include <algorithm>
+#include <vector>
 
 #include <petscksp.h>
 #include <petscsys.h>
@@ -89,7 +90,7 @@ int main(int argc, char* argv[]) {
   PetscCall(MatMult(A, u, b));
 
   for (int i=0; i<2; i++) {
-    if (i == 1) PetscLogDefaultBegin();
+    if (i == 0) PetscLogDefaultBegin();
     KSP ksp;
     PetscCall(KSPCreate(PETSC_COMM_WORLD, &ksp));
     PetscCall(KSPSetOperators(ksp, A, A));
