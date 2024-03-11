@@ -9,8 +9,13 @@ alias e='emacs -nw'
 export ZES_ENABLE_SYSMAN=1
 
 module use /soft/modulefiles
-module load spack-pe-oneapi
-module load oneapi/eng-compiler
+module load oneapi/release/2023.12.15.001
+# module load spack-pe-oneapi
+# module load oneapi/eng-compiler
+
+export FI_PROVIDER=udp
+module load spack-pe-gcc
+
 module load cmake
-module load parmetis
+# module load parmetis
 module load python
